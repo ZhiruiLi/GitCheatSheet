@@ -1,0 +1,412 @@
+#+TITLE: Git
+#+OPTIONS: num:nil, toc:nil
+* SETUP 基础设置
+#+BEGIN_SRC bash
+# username
+git config --global user.name "zhiruili"
+# email
+git config --global user.email "zr.public@outlook.com"
+# ui
+git config --global color.ui auto
+# proxy
+git config --global https.proxy http://127.0.0.1:1080
+git config --global https.proxy https://127.0.0.1:1080
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+# 读取配置，例如获取 URL
+git config --get remote.origin.url
+#+END_SRC
+
+* INIT 初始化工程
+#+BEGIN_SRC bash
+# 本地新建
+git init
+# 拉取远程
+git clone [url]
+#+END_SRC
+
+* STAGE & SNAPSHOT 状态 & 暂存
+#+BEGIN_SRC bash
+# 查看当前状态
+git status
+# 为下次 commit 添加文件
+git add [file]
+# diff 还未暂存的文件
+git diff
+# diff 已暂存未提交的文件
+git diff --staged
+# 提交
+git commit -m "[descriptive message]"
+#+END_SRC
+
+* BRANCH & MERGE 分支 & 合并
+#+BEGIN_SRC bash
+# 列出分支
+git branch
+# 创建分支
+git branch [branch_name]
+# 检出分支
+git checkout [branch-name]
+# 如果不存在分支就创建一个
+git checkout -b [branch-name] origin/[branch-name]
+# 关联本地分支和远程分支
+git branch --set-upstream-to=origin/[remote-branch-name]
+# 合并分支
+git merge [branch-name]
+git log
+# 选择一个提交合并到当前分支
+git cherry-pick [SHA]
+# 取消 cherry pick
+git cherry-pick --abort
+# 删除本地分支
+git branch -d [local-branch-name]
+# 删除远程分支
+git push origin --delete [remote-branch-name]
+# -------------------------------------------------
+# 解决冲突（假设要合并到 master）
+# 1. 拉取并尝试合并
+git fetch origin
+git checkout -b [branch-name] origin/[branch-name]
+git checkout master
+git merge --no-ff [branch-name]
+# 2. 查看冲突文件
+git status
+# 3. 修改文件解决冲突
+# vim xxx
+git add [confict-file-name]
+git commit -m '[resolve-confict-message]'
+# 4. 可以查看分支状态
+git log
+# 5. 推送
+git push origin master
+# -------------------------------------------------
+# 推送镜像仓库
+git remote set-url --push origin [new-url]
+git push --mirror
+# ------------------------------------------------
+# 拉取所有分支到本地 fetch all branch
+for remote in `git branch -r `; do git branch --track $remote; done
+#+END_SRC
+
+* INSPECT & COMPARE 查看 & 比较
+#+BEGIN_SRC bash
+# 查看提交日志
+git log
+git log --graph --pretty=oneline --abbrev-commit
+# 查看 branchA 上有而 branchB 上没有的提交
+git log [branchB]..[branchA]
+# 展示所有改文件的改动，包括重命名
+git log --follow [file]
+# diff branchA 中存在而 branchB 中不存在的内容
+git diff [branchB]...[branchA]
+# 打印相关变动
+git show [SHA]
+# 查看本地操作日志
+git reflog
+#+END_SRC
+
+* TRACKING PATH CHANGES 改变路径
+#+BEGIN_SRC bash
+# 删除指定文件
+git rm [file]
+# 改变文件路径
+git mv [existing-path] [new-path]
+# 显示所有提交日志并指示已移动的任何路径
+git log --stat -M
+#+END_SRC
+
+* IGNORING PATTERNS 忽略
+#+BEGIN_SRC gitignore
+# .gitignore
+logs/
+*.notes
+pattern*/
+#+END_SRC
+#+BEGIN_SRC bash
+# 设置全局 ignore 配置
+git config --global core.excludesfile [file]
+#+END_SRC
+
+* SHARE & UPDATE 共享 & 更新
+#+BEGIN_SRC bash
+# 添加一个 git URL 的别名
+git remote add [alias] [url]
+# 例如将本地的工程添加到远程
+git remote add origin remote repository [url]
+git remote -v
+git push -u origin master
+# 从远程拉取所有的 branch
+git fetch [alias]
+# 合并分支
+git merge [alias]/[branch]
+# 推送修改
+git push [alias] [branch]
+git push origin branch-local:branch-remote
+# 拉取远程修改
+git pull
+#+END_SRC
+
+* REWRITE HISTORY 修改历史
+#+BEGIN_SRC bash
+# 将本分支的提交应用到某个分支上
+git rebase [branch]
+#+END_SRC
+
+* TEMPORARY COMMITS 临时提交
+#+BEGIN_SRC bash
+# 暂存文件
+git stash
+# 列出暂存的文件
+git stash list
+# 用最后暂存的数据修改本地数据
+git stash pop
+# 丢弃对后暂存的数据
+git stash drop
+#+END_SRC
+
+* REVERT 回滚
+#+BEGIN_SRC bash
+# 放弃本地修改
+git checkout -- .
+git checkout -- [path/to/file/to/revert]
+# 回滚已经 commit 的文件
+git reset [file]
+git reset --soft HEAD~1
+git reset --soft HEAD^
+git reset --hard origin/[branch-name]
+# 重置到某个提交，可以先用 reflog 命令看一下本地的修改记录
+git reset --hard [SHA]
+# 清理本地未跟踪的修改
+git clean -fd
+# 危险！强制上传文件
+# 例如先回滚到一个比较老的提交，然后将这个回滚强行提交到远程
+git push -u origin [branch] -f
+#+END_SRC
+
+* SUBMODULE 子模块
+#+BEGIN_SRC bash
+# 添加子模块
+git submodule add [url] [path]
+# 初始化并更新子模块，拉取远端修改
+# 注意如果不加 --remote，拉取的是和当前工程绑定的版本而非最新版本
+git submodule update --init --recursive --remote
+# 拉取带子模块的代码
+git clone --recurse-submodules [url] [path]
+#+END_SRC
+
+* MISC 杂项
+** 解决文件没有修改但是 git 检测有修改的问题
+优先选用这个方法
+#+BEGIN_SRC bash
+# 仅设置当前工程
+git config core.filemode false
+
+# 全局设置
+git config --global core.filemode false
+#+END_SRC
+
+如果不行，那么尝试下面的方法
+#+BEGIN_SRC bash
+# 先清理，然后重新拉取，这个方法会丢失本地修改，需要先 push
+git rm --cached -r .
+git reset --hard
+#+END_SRC
+
+* ALIAS 别名
+#+BEGIN_SRC bash
+# 例如 git config --global alias.st status
+git config --global alias.[handle] [command]
+#+END_SRC
+#+BEGIN_SRC gitconfig
+# 常用别名
+[alias]
+    # 简写
+    co = checkout
+    cob = checkout -b
+    f = fetch -p
+    c = commit
+    p = push
+    l = pull --rebase
+    ba = branch -a
+    bd = branch -d
+    bD = branch -D
+    dc = diff --cached
+    rh = reset --hard
+    # log 打印树型结构
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+#+END_SRC
+
+oh-my-zsh git 插件的 alias
+#+BEGIN_QUOTE
+Alias                 Command
+g                     git
+ga                    git add
+gaa                   git add --all
+gapa                  git add --patch
+gau                   git add --update
+gav                   git add --verbose
+gap                   git apply
+gapt                  git apply --3way
+gb                    git branch
+gba                   git branch -a
+gbd                   git branch -d
+gbda                  git branch --no-color --merged | command grep -vE "^(+|*|\s*($(git_main_branch)|development|develop|devel|dev)\s*$)" | command xargs -n 1 git branch -d
+gbD                   git branch -D
+gbl                   git blame -b -w
+gbnm                  git branch --no-merged
+gbr                   git branch --remote
+gbs                   git bisect
+gbsb                  git bisect bad
+gbsg                  git bisect good
+gbsr                  git bisect reset
+gbss                  git bisect start
+gc                    git commit -v
+gc!                   git commit -v --amend
+gcn!                  git commit -v --no-edit --amend
+gca                   git commit -v -a
+gca!                  git commit -v -a --amend
+gcan!                 git commit -v -a --no-edit --amend
+gcans!                git commit -v -a -s --no-edit --amend
+gcam                  git commit -a -m
+gcsm                  git commit -s -m
+gcb                   git checkout -b
+gcf                   git config --list
+gcl                   git clone --recurse-submodules
+gclean                git clean -id
+gpristine             git reset --hard && git clean -dffx
+gcm                   git checkout $(git_main_branch)
+gcd                   git checkout develop
+gcmsg                 git commit -m
+gco                   git checkout
+gcount                git shortlog -sn
+gcp                   git cherry-pick
+gcpa                  git cherry-pick --abort
+gcpc                  git cherry-pick --continue
+gcs                   git commit -S
+gd                    git diff
+gdca                  git diff --cached
+gdcw                  git diff --cached --word-diff
+gdct                  git describe --tags $(git rev-list --tags --max-count=1)
+gds                   git diff --staged
+gdt                   git diff-tree --no-commit-id --name-only -r
+gdnolock              git diff $@ ":(exclude)package-lock.json" ":(exclude)*.lock"
+gdv                   git diff -w $@ | view -
+gdw                   git diff --word-diff
+gf                    git fetch
+gfa                   git fetch --all --prune
+gfg                   git ls-files | grep
+gfo                   git fetch origin
+gg                    git gui citool
+gga                   git gui citool --amend
+ggf                   git push --force origin $(current_branch)
+ggfl                  git push --force-with-lease origin $(current_branch)
+ggl                   git pull origin $(current_branch)
+ggp                   git push origin $(current_branch)
+ggpnp                 ggl && ggp
+ggpull                git pull origin "$(git_current_branch)"
+ggpur                 ggu
+ggpush                git push origin "$(git_current_branch)"
+ggsup                 git branch --set-upstream-to=origin/$(git_current_branch)
+ggu                   git pull --rebase origin $(current_branch)
+gpsup                 git push --set-upstream origin $(git_current_branch)
+ghh                   git help
+gignore               git update-index --assume-unchanged
+gignored              git ls-files -v | grep "^[[:lower:]]"
+git-svn-dcommit-push  git svn dcommit && git push github $(git_main_branch):svntrunk
+gk                    gitk --all --branches
+gke                   gitk --all $(git log -g --pretty=%h)
+gl                    git pull
+glg                   git log --stat
+glgp                  git log --stat -p
+glgg                  git log --graph
+glgga                 git log --graph --decorate --all
+glgm                  git log --graph --max-count=10
+glo                   git log --oneline --decorate
+glol                  git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+glols                 git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat
+glod                  git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset'
+glods                 git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --date=short
+glola                 git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all
+glog                  git log --oneline --decorate --graph
+gloga                 git log --oneline --decorate --graph --all
+glp                   git log --pretty=<format>
+gm                    git merge
+gmom                  git merge origin/$(git_main_branch)
+gmt                   git mergetool --no-prompt
+gmtvim                git mergetool --no-prompt --tool=vimdiff
+gmum                  git merge upstream/$(git_main_branch)
+gma                   git merge --abort
+gp                    git push
+gpd                   git push --dry-run
+gpf                   git push --force-with-lease
+gpf!                  git push --force
+gpoat                 git push origin --all && git push origin --tags
+gpu                   git push upstream
+gpv                   git push -v
+gr                    git remote
+gra                   git remote add
+grb                   git rebase
+grba                  git rebase --abort
+grbc                  git rebase --continue
+grbd                  git rebase develop
+grbi                  git rebase -i
+grbm                  git rebase $(git_main_branch)
+grbs                  git rebase --skip
+grev                  git revert
+grh                   git reset
+grhh                  git reset --hard
+groh                  git reset origin/$(git_current_branch) --hard
+grm                   git rm
+grmc                  git rm --cached
+grmv                  git remote rename
+grrm                  git remote remove
+grs                   git restore
+grset                 git remote set-url
+grss                  git restore --source
+grt                   git rev-parse --show-toplevel || echo .)"
+gru                   git reset --
+grup                  git remote update
+grv                   git remote -v
+gsb                   git status -sb
+gsd                   git svn dcommit
+gsh                   git show
+gsi                   git submodule init
+gsps                  git show --pretty=short --show-signature
+gsr                   git svn rebase
+gss                   git status -s
+gst                   git status
+gsta                  git stash push
+gsta                  git stash save
+gstaa                 git stash apply
+gstc                  git stash clear
+gstd                  git stash drop
+gstl                  git stash list
+gstp                  git stash pop
+gsts                  git stash show --text
+gstu                  git stash --include-untracked
+gstall                git stash --all
+gsu                   git submodule update
+gsw                   git switch
+gswc                  git switch -c
+gts                   git tag -s
+gtv                   git tag | sort -V
+gtl                   gtl(){ git tag --sort=-v:refname -n -l ${1}* }; noglob gtl
+gunignore             git update-index --no-assume-unchanged
+gunwip                git log -n 1 | grep -q -c "--wip--" && git reset HEAD~1
+gup                   git pull --rebase
+gupv                  git pull --rebase -v
+gupa                  git pull --rebase --autostash
+gupav                 git pull --rebase --autostash -v
+glum                  git pull upstream $(git_main_branch)
+gwch                  git whatchanged -p --abbrev-commit --pretty=medium
+gwip                  git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify --no-gpg-sign -m "--wip-- [skip ci]"
+gam                   git am
+gamc                  git am --continue
+gams                  git am --skip
+gama                  git am --abort
+gamscp                git am --show-current-patch
+#+END_QUOTE
+
+* References
+- git cheatsheet https://education.github.com/git-cheat-sheet-education.pdf
+- git visualized gif https://dev.to/lydiahallie/cs-visualized-useful-git-commands-37p1
