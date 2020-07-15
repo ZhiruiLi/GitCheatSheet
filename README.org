@@ -405,7 +405,7 @@ gamc                  git am --continue
 gams                  git am --skip
 gama                  git am --abort
 gamscp                git am --show-current-patch
-#+BEGIN_SRC
+#+END_SRC
 
 * References
 - git cheatsheet https://education.github.com/git-cheat-sheet-education.pdf
