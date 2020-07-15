@@ -237,7 +237,7 @@ git config --global alias.[handle] [command]
 #+END_SRC
 
 oh-my-zsh git 插件的 alias
-#+BEGIN_QUOTE
+#+BEGIN_SRC
 Alias                 Command
 g                     git
 ga                    git add
@@ -405,7 +405,7 @@ gamc                  git am --continue
 gams                  git am --skip
 gama                  git am --abort
 gamscp                git am --show-current-patch
-#+END_QUOTE
+#+BEGIN_SRC
 
 * References
 - git cheatsheet https://education.github.com/git-cheat-sheet-education.pdf
