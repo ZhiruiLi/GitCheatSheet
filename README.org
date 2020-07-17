@@ -156,6 +156,23 @@ git pull
 #+BEGIN_SRC bash
 # 将本分支的提交应用到某个分支上
 git rebase [branch]
+# -------------------------------------------------
+# 合并一个分支中某几个提交
+# 先用类似 git log 的方式查看提交的 sha，确定想要在哪个范围内进行修改
+# 下面的 sha-new 可以省略，默认是当前最新的提交
+git rebase -i [sha-old] [sha-new]
+# 或者 git rebase -i HEAD~3 表明处理最近 3 个提交
+# 接下来会弹出一个 editor，默认是类似这样的格式：
+#    pick commit 1
+#    pick commit 2
+#    pick commit 3
+# 修改 pick 为 squash 可以将对应提交合并到前一个提交上
+# 例如
+#    pick commit 1
+#    squash commit 2
+#    squash commit 3
+# 保存退出编辑器后，会弹出一个新的编辑器窗口修改提交信息
+# 再次修改并保存退出编辑器后，上面 2 和 3 会合并到 1
 #+END_SRC
 
 * TEMPORARY COMMITS 临时提交
