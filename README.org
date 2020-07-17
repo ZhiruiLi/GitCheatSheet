@@ -69,6 +69,12 @@ git fetch origin
 git checkout -b [branch-name] origin/[branch-name]
 git checkout master
 git merge --no-ff [branch-name]
+# 注：这里的 --no-ff 指明了 merge 的时候不使用 fast forward 模式
+#     如果被合并分支 b 本身是从当前分支 a 的开头分出去的，
+#     或者 b 已经合并过一次最新的 a 分支的提交，
+#     那么 fast forward 模式将导致 b 的最新提交直接被放到 a 分支上，
+#     在 a 分支上不会看到一个 merge a 和 b 的时候产生的明确提交，
+#     而 no fast forward 模式则确保这个 merge 提交存在
 # 2. 查看冲突文件
 git status
 # 3. 修改文件解决冲突
