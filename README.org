@@ -223,9 +223,11 @@ git clone --recurse-submodules [url] [path]
 #+BEGIN_SRC bash
 # 仅设置当前工程
 git config core.filemode false
+git config core.autocrlf input
 
 # 全局设置
 git config --global core.filemode false
+git config --global core.autocrlf input
 #+END_SRC
 
 如果不行，那么尝试下面的方法
